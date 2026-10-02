@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdint.h>
 
 // Scalar
 void add_arrays_c(float* a, float* b, float* res, int n) {
@@ -24,8 +25,19 @@ void add_arrays_asm(float* a, float* b, float* res, int n) {
     }
 }
 
-int main() {
-    int n = 1 << 20;
+void usage()
+{
+    printf("Usage : simd <size of array>");
+}
+
+int main(int argc, char** argv) {
+
+    if (argc < 2)
+    {
+        usage();
+        return 1;
+    }
+    uint64_t n = atoi(argv[1]);
     size_t size = n * sizeof(float);
 
     float *a   = (float*)aligned_alloc(32, size);
@@ -50,7 +62,7 @@ int main() {
     clock_gettime(CLOCK_MONOTONIC, &end);
     time_asm = (end.tv_sec - start.tv_sec) * 1e6 + (end.tv_nsec - start.tv_nsec) / 1e3;
 
-    printf("Taille array      : %d elements\n", n);
+    printf("Taille array      : %ld elements\n", n);
     printf("Temps version C   : %.2f microsecondes\n", time_c);
     printf("Temps version ASM : %.2f microsecondes\n", time_asm);
     printf("Acceleration      : x%.2f\n", time_c / time_asm);
